@@ -17,48 +17,17 @@ public class RecipesRepository : IRecipesRepository
         _ingredientsRegister = ingredientsRegister;
     }
 
-    public List<Recipe> Read(string filePath)
-    {
-        List<string> recipesFromFile = _stringsRepository.Read(filePath);
-        var recipes = new List<Recipe>();
+    public List<Recipe> Read(string filePath) => _stringsRepository.Read(filePath)
+        .Select(RecipeFromString)
+        .ToList();
 
-        foreach (var recipeFromFile in recipesFromFile)
-        {
-            var recipe = RecipeFromString(recipeFromFile);
-            recipes.Add(recipe);
-        }
+    private Recipe RecipeFromString(string recipeFromFile) => new(recipeFromFile.Split(Separator)
+        .Select(int.Parse)
+        .Select(_ingredientsRegister.GetById));
 
-        return recipes;
-    }
-
-    private Recipe RecipeFromString(string recipeFromFile)
-    {
-        var textualIds = recipeFromFile.Split(Separator);
-        var ingredients = new List<Ingredient>();
-
-        foreach (var textualId in textualIds)
-        {
-            var id = int.Parse(textualId);
-            var ingredient = _ingredientsRegister.GetById(id);
-            ingredients.Add(ingredient);
-        }
-
-        return new Recipe(ingredients);
-    }
-
-    public void Write(string filePath, List<Recipe> allRecipes)
-    {
-        var recipesAsStrings = new List<string>();
-        foreach (var recipe in allRecipes)
-        {
-            var allIds = new List<int>();
-            foreach (var ingredient in recipe.Ingredients)
-            {
-                allIds.Add(ingredient.Id);
-            }
-            recipesAsStrings.Add(string.Join(Separator, allIds));
-        }
-
-        _stringsRepository.Write(filePath, recipesAsStrings);
-    }
+    public void Write(string filePath, List<Recipe> allRecipes) => _stringsRepository.Write(filePath, allRecipes
+        .Select(recipe => string.Join(Separator, recipe.Ingredients
+            .Select(ingredient => ingredient.Id)
+            .ToList()))
+        .ToList());
 }

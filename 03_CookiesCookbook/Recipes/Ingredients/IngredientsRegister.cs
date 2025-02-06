@@ -2,8 +2,8 @@
 
 public class IngredientsRegister : IIngredientsRegister
 {
-    public IEnumerable<Ingredient> All { get; } = new List<Ingredient>
-    {
+    public IEnumerable<Ingredient> All { get; } =
+    [
         new WheatFlour(),
         new SpeltFlour(),
         new Butter(),
@@ -12,7 +12,7 @@ public class IngredientsRegister : IIngredientsRegister
         new Cardamom(),
         new Cinnamon(),
         new CocoaPowder()
-    };
+    ];
 
     public Ingredient GetById(int id)
     {
